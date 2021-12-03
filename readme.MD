@@ -1,0 +1,1 @@
+My implementation of HTM based on Numenta BAMI v7
