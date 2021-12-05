@@ -52,7 +52,7 @@ predicting_columns = np.any(predicting_cells,axis=1)
 columns_has_wrong_prediction = np.bitwise_and(not_bool_column_input,predicting_columns)
 columns_has_wrong_prediction_T = columns_has_wrong_prediction[:,np.newaxis]
 cells_has_wrong_predictions = np.bitwise_and(predicting_cells, columns_has_wrong_prediction_T)
-cells_has_wrong_prediction_indices = np.where()
+#cells_has_wrong_prediction_indices = np.where()
 
 
 
