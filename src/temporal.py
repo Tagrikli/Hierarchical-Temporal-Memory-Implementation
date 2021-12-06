@@ -27,33 +27,50 @@ column_input[np.random.randint(0, COLUMN_COUNT, int(
 print(column_input)
 
 cell_states[:, :2] = CELL_STATE.ACTIVE
-cell_states[0, 2] = CELL_STATE.PREDICTING
+cell_states[:, 3] = CELL_STATE.PREDICTING
 
 new_cell_states = np.zeros((COLUMN_COUNT, COLUMN_HEIGHT), dtype=np.int32)
 ##SAMPLE INPUT####################
 
 
 bool_column_input = np.bool8(column_input)
-bool_column_input_T = bool_column_input[:,np.newaxis]
+bool_column_input_T = bool_column_input[:, np.newaxis]
 
-#Column Active & Cells Predicting /STRENGHTEN
+# Column Active & Cells Predicting /STRENGHTEN
 predicting_cells = np.equal(cell_states, CELL_STATE.PREDICTING)
 active_predicting = np.bitwise_and(predicting_cells, bool_column_input_T)
 active_predicting_indices = np.where(active_predicting)
 
-#Column Active & Cells NotPredicting /BURST
+
+# Column Active & Cells NotPredicting /BURST
 not_predicting_cells = np.bitwise_not(predicting_cells)
-not_predicting_columns = np.all(not_predicting_cells,axis=1)
+not_predicting_columns = np.all(not_predicting_cells, axis=1)
 columns_to_burst = np.bitwise_and(not_predicting_columns, bool_column_input)
 
 
-#Column NotActive & Predicting
+# Column NotActive & Predicting
 not_bool_column_input = np.bitwise_not(bool_column_input)
-predicting_columns = np.any(predicting_cells,axis=1)
-columns_has_wrong_prediction = np.bitwise_and(not_bool_column_input,predicting_columns)
-columns_has_wrong_prediction_T = columns_has_wrong_prediction[:,np.newaxis]
-cells_has_wrong_predictions = np.bitwise_and(predicting_cells, columns_has_wrong_prediction_T)
+predicting_columns = np.any(predicting_cells, axis=1)
+columns_has_wrong_prediction = np.bitwise_and(
+    not_bool_column_input, predicting_columns)
+columns_has_wrong_prediction_T = columns_has_wrong_prediction[:, np.newaxis]
+cells_has_wrong_predictions = np.bitwise_and(
+    predicting_cells, columns_has_wrong_prediction_T)
 cells_has_wrong_prediction_indices = np.where(cells_has_wrong_predictions)
+
+
+if LEARNING:
+    # Strenghten the connections contributed to winner cells
+    connections_to_strenghten = temporal_connections[active_predicting_indices[0],
+                                                     active_predicting_indices[1]].flatten().reshape((-1, 2))
+    permenance_values[connections_to_strenghten[:, 0],
+                      connections_to_strenghten[:, 1]] += PERMENCANCE_INCREMENT
+
+    # Weaken the wrongly contributed cells
+    connections_to_weaken = temporal_connections[cells_has_wrong_prediction_indices[0],
+                                                 cells_has_wrong_prediction_indices[1]].flatten().reshape((-1, 2))
+    permenance_values[connections_to_weaken[0],
+                      connections_to_weaken[1]] -= PERMENCANCE_DECREAMENT
 
 
 
