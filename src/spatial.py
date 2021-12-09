@@ -43,6 +43,7 @@ class OnlySpatial:
 
         # Set active indices to 1
         self.columns[inhibited_neighbor_indices] = 1
+        print(inhibited_neighbor_indices)
 
         return self.columns
 
@@ -72,4 +73,12 @@ class OnlySpatial:
                 item.append(index)
             arr.append(item)
 
-        return arr
+        return np.array(arr,dtype=np.int32)
+
+if __name__ == '__main__':
+    a = OnlySpatial(100)
+    a.initSpatial()
+    samp_inp = np.zeros(100)
+    samp_inp[np.random.randint(0,100,5)] = 1
+    a.spatialStep(samp_inp)
+    

@@ -30,7 +30,7 @@ cell_states[:, :2] = CELL_STATE.ACTIVE
 cell_states[:, 3] = CELL_STATE.PREDICTING
 
 new_cell_states = np.zeros((COLUMN_COUNT, COLUMN_HEIGHT), dtype=np.int32)
-##SAMPLE INPUT####################
+##SAMPLE INPUT##
 
 
 bool_column_input = np.bool8(column_input)
