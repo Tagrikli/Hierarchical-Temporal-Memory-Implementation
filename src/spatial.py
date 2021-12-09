@@ -1,6 +1,7 @@
 import numpy as np
 from config import *
 
+
 class OnlySpatial:
 
     def __init__(self, input_size) -> None:
@@ -10,6 +11,8 @@ class OnlySpatial:
         self.spatial_connections = []
         self.spatial_boosts = []
         self.neighbor_indices = self.__getNeighborIndices()
+        
+        self.__configCheck()
 
     def spatialStep(self, input_data):
         # Total overlaps per column
@@ -20,7 +23,8 @@ class OnlySpatial:
             spatial_overlaps, self.spatial_boosts)
 
         # Take overlaps from indices
-        neighbor_overlaps = np.take(spatial_overlaps_boosted, self.neighbor_indices)
+        neighbor_overlaps = np.take(
+            spatial_overlaps_boosted, self.neighbor_indices)
 
         # NTH_SCORE of the every neighbor
         nty_scores_per_inhibition_area = np.partition(
@@ -43,7 +47,6 @@ class OnlySpatial:
 
         # Set active indices to 1
         self.columns[inhibited_neighbor_indices] = 1
-        print(inhibited_neighbor_indices)
 
         return self.columns
 
@@ -51,11 +54,43 @@ class OnlySpatial:
         '''
         Initialize spatial connections and boost values
         '''
-        self.spatial_connections = np.random.randint(
-            0, self.input_size, (COLUMN_COUNT, SPATIAL_CONNECTION_COUNT))
+        # self.spatial_connections = np.random.randint(
+        #     0, self.input_size, (COLUMN_COUNT, SPATIAL_CONNECTION_COUNT))
 
+        self.spatial_connections = np.zeros(
+            (COLUMN_COUNT, SPATIAL_CONNECTION_COUNT),dtype=np.int32)
+        for index in range(self.spatial_connections.shape[0]):
+            self.spatial_connections[index] = np.random.choice(self.__neighborRanges(index), SPATIAL_CONNECTION_COUNT, replace=False)
+            
         self.spatial_boosts = np.ones(COLUMN_COUNT, dtype=np.int32)
 
+    def __neighborRanges(self, index):
+
+        FIRST_IND = 0
+        LAST_IND = COLUMN_COUNT - 1
+
+        if not FIRST_IND <= index <= LAST_IND:
+            raise Exception('Index value must be in range [0,COLUMN_COUNT -1]')
+        
+        range = []
+
+        start_edge = index - int(INHIBITION_RADIUS/2)
+        stop_edge = index + int(INHIBITION_RADIUS/2)
+
+        if start_edge < 0 and stop_edge >= 0:
+            r1 = np.arange(start_edge % COLUMN_COUNT, LAST_IND + 1)
+            r2 = np.arange(FIRST_IND, stop_edge + 1)
+            range = (*r1,*r2)
+
+        elif stop_edge > LAST_IND and start_edge < LAST_IND:
+            r1 = np.arange(0, (stop_edge % COLUMN_COUNT) + 1)
+            r2 = np.arange(start_edge, LAST_IND + 1)
+            range = (*r1,*r2)
+
+        elif start_edge >= FIRST_IND and stop_edge <= LAST_IND:
+            range = (*np.arange(start_edge, stop_edge + 1),)
+
+        return np.array(range, dtype=np.int32)
 
     def __getNeighborIndices(self):
         '''
@@ -73,12 +108,21 @@ class OnlySpatial:
                 item.append(index)
             arr.append(item)
 
-        return np.array(arr,dtype=np.int32)
+        return np.array(arr, dtype=np.int32)
+    
+    def __configCheck(self):
+        if INHIBITION_RADIUS > COLUMN_COUNT:
+            raise Exception(
+                'INHIBITION_RADIUS must be lesser than or equal to COLUMN_COUNT')
+
+        if not INHIBITION_RADIUS % 2:
+            raise Exception('INHIBITION_RADIUS must be an odd number')
+
 
 if __name__ == '__main__':
+
     a = OnlySpatial(100)
     a.initSpatial()
-    samp_inp = np.zeros(100)
-    samp_inp[np.random.randint(0,100,5)] = 1
-    a.spatialStep(samp_inp)
-    
+    samp = np.zeros(100,dtype=np.int32)
+    samp[np.random.randint(0, 100, 40)] = 1
+    r = a.spatialStep(samp)
