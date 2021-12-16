@@ -1,6 +1,5 @@
 import numpy as np
 from config import *
-from visualize import inputs,sleep,columns
 
 
 class OnlySpatial:
@@ -76,7 +75,7 @@ class OnlySpatial:
         # Set active indices to 1
         self.columns[winner_columns] = 1
 
-        return self.columns
+        return winner_columns
 
     def initSpatial(self):
         '''
@@ -157,26 +156,5 @@ class OnlySpatial:
 
 
 if __name__ == '__main__':
-
-    # a = np.zeros((5,5))
-    # b = [3,4]
-    # c = [True, True, False,False,True]
-
-    # print(a)
-
-    a = OnlySpatial(100)
-    a.initSpatial()
-
-    columns.initConnections(a.spatial_connections)
-
-    for i in range(40):
-        samp = np.zeros(INPUT_SIZE,dtype=np.int32)
-        samp[np.random.randint(0,INPUT_SIZE,(15))] = CELL_STATE.ACTIVE
-        inputs.updateInput(samp)
-
-        a.spatialStep(samp)
-        
-        sleep(1)
-
-
+    pass
     
