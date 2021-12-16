@@ -1,5 +1,6 @@
 import numpy as np
 from config import *
+from visualize import inputs,sleep,columns
 
 
 class OnlySpatial:
@@ -10,6 +11,8 @@ class OnlySpatial:
         self.columns = np.zeros(COLUMN_COUNT)
         self.spatial_connections = np.empty(
             (COLUMN_COUNT, SPATIAL_CONNECTION_COUNT), dtype=np.int32)
+
+
         self.spatial_boosts = np.empty(COLUMN_COUNT, dtype=np.int32)
         self.permenance_values = np.empty(
             (COLUMN_COUNT, SPATIAL_CONNECTION_COUNT), dtype=np.float64)
@@ -60,7 +63,7 @@ class OnlySpatial:
             inactive_winner_connections = np.equal(
                 input_data_of_winner_columns, CELL_STATE.INACTIVE)
 
-            temp = self.permenance_values[winner_columns]
+            temp = self.permenance_values[winner_columns].copy()
             temp[active_winner_connections] += PERMENCANCE_INCREMENT
             temp[inactive_winner_connections] -= PERMENCANCE_DECREAMENT
             self.permenance_values[winner_columns] = temp
@@ -163,9 +166,17 @@ if __name__ == '__main__':
 
     a = OnlySpatial(100)
     a.initSpatial()
-    samp = np.zeros(100, dtype=np.int32)
-    samp[np.random.randint(0, 100, 4)] = 1
-    for i in range(40):
-        a.spatialStep(samp)
 
-    print(a.permenance_values)
+    columns.initConnections(a.spatial_connections)
+
+    for i in range(40):
+        samp = np.zeros(INPUT_SIZE,dtype=np.int32)
+        samp[np.random.randint(0,INPUT_SIZE,(15))] = CELL_STATE.ACTIVE
+        inputs.updateInput(samp)
+
+        a.spatialStep(samp)
+        
+        sleep(1)
+
+
+    
