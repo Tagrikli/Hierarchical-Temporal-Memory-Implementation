@@ -6,6 +6,7 @@ from visualize_vis import *
 a = OnlySpatial(100)
 a.initSpatial()
 
+htm.initConnections(a.spatial_connections)
 
 def update(event):
     samp = np.zeros(INPUT_SIZE,dtype=np.int32)
@@ -14,11 +15,12 @@ def update(event):
 
     winner_columns = a.spatialStep(samp)
 
-    InputVisuals.updateWinners(winner_columns)
     
+    htm.updateWinners(winner_columns)
 
-    canvas.update()
 
+
+    htm.canvas.update()
 
 
 timer = app.Timer(0.4,update)

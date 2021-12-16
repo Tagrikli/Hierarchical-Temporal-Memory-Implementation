@@ -6,6 +6,8 @@ from vispy.visuals import MarkersVisual
 import numpy as np
 from multiprocessing import Process
 
+from vpython.vpython import canvas
+
 from config import COLUMN_COUNT, COLUMN_HEIGHT, INPUT_SIZE, SPATIAL_CONNECTION_COUNT
 
 
@@ -41,6 +43,19 @@ class InputVisual:
         self.colors[winner_columns] = COLORS.ACTIVE
         self.cells.set_data(pos=self.cell_poses,
                             face_color=self.colors, edge_width=0)
+
+class SpatialConVisual:
+    def __init__(self,parent) -> None:
+        self.connections = scene.visuals.Line(
+            parent=parent,
+            
+        )
+
+    def updatePermenance(self,permenance):
+        pass
+
+    def initConnections(self,connections):
+        pass
 
 
 class ColumnVisual:
@@ -97,17 +112,21 @@ class HTMVisual:
 
     def initConnections(self, connections):
         column_poses=self.column_visuals.cell_poses
-        input_poses=self.input_visuals.cell_poses
+        input_poses= self.input_visuals.cell_poses
+        connected_poses= input_poses[connections]
 
-        
-        print(column_poses)
+        connections = []
+        for column in column_poses:
+            pass
 
 
+    def updateWinners(self,winner_columns):
+        self.input_visuals.updateWinners(winner_columns)
 
 
 
 htm = HTMVisual()
-htm.initConnections(0)
+#htm.initConnections(0)
 
 
 
